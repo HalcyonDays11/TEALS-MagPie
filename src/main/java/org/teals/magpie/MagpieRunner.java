@@ -1,12 +1,8 @@
 package org.teals.magpie;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.function.Function;
@@ -19,12 +15,30 @@ import de.btobastian.sdcf4j.CommandExecutor;
 import de.btobastian.sdcf4j.CommandHandler;
 import de.btobastian.sdcf4j.CommandHandler.SimpleCommand;
 
-public class MagPie {
+public class MagpieRunner {
 
-	public static String DISCORD_TOKEN = ""; //Replace with your own, unique discord token.
+	public static int MAGPIE_VERSION = 2; // This variable tells the Magpie Runner which version of your code to run.  Valid versions are 2-5.
+	public static String DISCORD_TOKEN = ""; // Replace with your own, unique discord token.
 	public static boolean COMMAND_LINE_MODE = true; //Set to "false" to connect to Discord, "true" to test in your command line
 	
-	private static MagPie instance;
+	// this is called from main() if running in command-line mode
+	public void watchCommandLine(Magpie maggie) {
+		
+		System.out.println (maggie.getGreeting());
+		Scanner in = new Scanner (System.in);
+		String statement = in.nextLine();
+		
+		while (!statement.equals("Bye")) {
+			System.out.println(maggie.getResponse(statement));
+			statement = in.nextLine();
+		}
+		System.exit(0);
+	}
+	
+	// STUDENTS - do not modify anything below this comment.  You do not need to understand what's going on here.
+	// this uses some advanced Java code that we won't cover in this class to connect to Discord and register to respond to messages
+	
+	private static MagpieRunner instance;
 	
 	private DiscordBot bot;
 	private Map<String, SimpleCommand> commandLineModeMap = new HashMap<>();
@@ -70,41 +84,6 @@ public class MagPie {
 		return true;
 	}
 	
-	public void watchCommandLine() {
-		Scanner scanner = new Scanner(System.in);
-		boolean running = true;
-		while(running) {
-			String nextLine = scanner.nextLine();
-			if(nextLine.startsWith("!exit")) {
-				running = false;
-				continue;
-			}
-			
-			int firstSpace = nextLine.indexOf(" ");
-			String commandPrefix;
-			if(firstSpace > 0) {				
-				commandPrefix = nextLine.substring(0, firstSpace);
-			}else {
-				commandPrefix = nextLine;
-			}
-			String[] split = nextLine.split(" ");
-			String[] args = Arrays.copyOfRange(split, 1, split.length);
-			Optional<Entry<String, SimpleCommand>> found = commandLineModeMap.entrySet().stream().filter((entry) -> entry.getKey().equals(commandPrefix)).findAny();
-			if(found.isPresent()) {
-				SimpleCommand actualCommand = found.get().getValue();
-				try {
-					String response = (String)actualCommand.getMethod().invoke(actualCommand.getExecutor(), null, null, null, commandPrefix, args);
-					System.out.println(response);
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-					e.printStackTrace();
-				}
-			}else {
-				System.out.println("Unknown command!");
-			}
-		}
-		scanner.close();
-		System.exit(0);
-	}
 	
 	public void shutdown() {
 		bot.disconnect();
@@ -115,21 +94,36 @@ public class MagPie {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		instance = new MagPie();
-		boolean setup = instance.setup();
-		if(!setup) {
-			System.exit(-1);
-		}
+		instance = new MagpieRunner();
 		
 		if(COMMAND_LINE_MODE) {
-			instance.watchCommandLine();
+			Magpie maggie = createMagpie();
+			if (maggie == null) {
+				System.err.println("invalid magpie version!  Valid versions are 2, 3, 4, or 5");
+				System.exit(-1);
+			}
+			instance.watchCommandLine(maggie);
 		}else {			
+			boolean setup = instance.setup();
+			if(!setup) {
+				System.exit(-1);
+			}
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				@Override
 				public void run() {
 					instance.shutdown();
 				}
 			});
+		}
+	}
+	
+	public static Magpie createMagpie() {
+		switch(MAGPIE_VERSION) {
+			case 2: return new Magpie2();
+			case 3: return new Magpie3();
+			case 4: return new Magpie4();
+			case 5: return new Magpie5();
+			default: return null;
 		}
 	}
 }
