@@ -1,6 +1,7 @@
 package org.teals.magpie;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,11 +87,13 @@ public class MagPie {
 			}else {
 				commandPrefix = nextLine;
 			}
+			String[] split = nextLine.split(" ");
+			String[] args = Arrays.copyOfRange(split, 1, split.length);
 			Optional<Entry<String, SimpleCommand>> found = commandLineModeMap.entrySet().stream().filter((entry) -> entry.getKey().equals(commandPrefix)).findAny();
 			if(found.isPresent()) {
 				SimpleCommand actualCommand = found.get().getValue();
 				try {
-					String response = (String)actualCommand.getMethod().invoke(actualCommand.getExecutor(), null, null, null, nextLine, null);
+					String response = (String)actualCommand.getMethod().invoke(actualCommand.getExecutor(), null, null, null, commandPrefix, args);
 					System.out.println(response);
 				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 					e.printStackTrace();

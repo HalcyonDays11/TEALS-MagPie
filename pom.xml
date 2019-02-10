@@ -25,7 +25,7 @@
   <dependencies>
   	<dependency>
   		<groupId>com.discord4j</groupId>
-  		<artifactId>discord4j-core</artifactId>
+  		<artifactId>Discord4J</artifactId>
   	</dependency>
   	<dependency>
   		<groupId>de.btobastian.sdcf4j</groupId>
@@ -44,8 +44,8 @@
   	<dependencies>
   		<dependency>
   			<groupId>com.discord4j</groupId>
-  			<artifactId>discord4j-core</artifactId>
-  			<version>3.0.0.M2</version>
+  			<artifactId>Discord4J</artifactId>
+  			<version>2.10.1</version>
   		</dependency>
   		<dependency>
   			<groupId>de.btobastian.sdcf4j</groupId>

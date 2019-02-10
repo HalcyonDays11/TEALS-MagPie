@@ -45,12 +45,6 @@ public class DiscordBot {
 		}
 	}
 	
-	public void setStatus(String status){
-		if(discordClient.isLoggedIn()){
-			discordClient.changePlayingText(status);
-		}
-	}
-	
 	public void disconnect() {
 		if(discordClient.isLoggedIn()){			
 			discordClient.logout();

@@ -1,5 +1,7 @@
 package org.teals.magpie.commands;
 
+import java.util.Arrays;
+
 import de.btobastian.sdcf4j.Command;
 import de.btobastian.sdcf4j.CommandExecutor;
 import sx.blah.discord.api.IDiscordClient;
@@ -10,8 +12,7 @@ public class MagpieCommand implements CommandExecutor{
 
 	@Command(aliases = {"!magpie"})
 	public String processCommand(IChannel channel, IUser user, IDiscordClient apiClient, String command, String[] args) {
-		command = command.replaceFirst("\\!magpie ", "");
-		return process(command);
+		return process(String.join(" ", args));
 	}
 	
 	
